@@ -1,0 +1,31 @@
+version: '3'
+services:
+  backend:
+    build: ./backend
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./output:/app/output
+    depends_on:
+      - redis
+
+  celery:
+    build: ./backend
+    command: celery -A backend.app.workers.tasks worker --loglevel=info
+    depends_on:
+      - redis
+    volumes:
+      - ./output:/app/output
+
+  redis:
+    image: redis
+    ports:
+      - "6379:6379"
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "3000:3000"
+    command: npm run start
+    volumes:
+      - ./frontend:/app
